@@ -235,7 +235,7 @@
                 if(results.multiHandLandmarks.length > 0) {
                     const lm = results.multiHandLandmarks[0]; handX = lm[9].x; 
                     let openDist = 0; [8,12,16,20].forEach(i => openDist += Math.hypot(lm[i].x-lm[0].x, lm[i].y-lm[0].y));
-                    if (openDist/4 < 0.25) { state = 'TREE'; statusDiv.innerText = "✊ Bánh Kem Hồng"; statusDiv.style.color = "#FFB6C1"; }
+                    if (openDist/4 < 0.25) { state = 'TREE'; statusDiv.innerText = "✊ Bánh Kem"; statusDiv.style.color = "#FFB6C1"; }
                     else if (Math.hypot(lm[4].x-lm[8].x, lm[4].y-lm[8].y) < 0.05) { state = 'PHOTO'; statusDiv.innerText = "👌 Kỷ Niệm"; statusDiv.style.color = "#00FFFF"; }
                     else { state = 'EXPLODE'; statusDiv.innerText = "🖐 Phép màu"; statusDiv.style.color = "#FFA500"; }
                 } else { state = 'TREE'; statusDiv.innerText = "🎂 Dành Cho Em 🎂"; statusDiv.style.color = "#FFF"; }
@@ -246,4 +246,5 @@
         window.addEventListener('resize', () => { if(camera) { camera.aspect = window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); } });
     </script>
 </body>
+
 </html>
