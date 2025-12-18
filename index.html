@@ -32,7 +32,7 @@
         <br>
         <div class="guide">🖐 <b>Xòe:</b> Pháo hoa &nbsp;|&nbsp; ❤️ <b>Tim:</b> Yêu thương &nbsp;|&nbsp; ✊ <b>Nắm:</b> Bánh Kem &nbsp;|&nbsp; 👌 <b>Chạm:</b> Xem Ảnh</div>
         <br>
-        <button id="btnStart" onclick="startSystem()">THỔI NẾN THÔI!</button>
+        <button id="btnStart" onclick="startSystem()">Dành Cho Em!</button>
     </div>
     <div id="copyright">© Gift for Diep Ha</div>
     <div id="canvas-container"></div>
@@ -45,7 +45,7 @@
         bgMusic.loop = true; bgMusic.volume = 1.0;
 
         const loader = new THREE.TextureLoader();
-        const photoFiles = ['./image1.jpeg', './image2.jpeg', './image3.jpeg', './image4.jpeg', './image5.jpeg', './image6.jpeg'];
+        const photoFiles = ['./image1.jpg', './image2.jpg', './image3.jpg', './image4.jpg', './image5.jpg', './image6.jpg'];
         const photoTextures = [];
         photoFiles.forEach((f, i) => photoTextures[i] = loader.load(f));
 
@@ -143,8 +143,8 @@
 
         function createDecorations() {
             const canvas = document.createElement('canvas'); canvas.width = 1600; canvas.height = 600; const ctx = canvas.getContext('2d');
-            ctx.font = '100px "Great Vibes", cursive'; ctx.fillStyle = '#FF69B4'; ctx.textAlign = 'center'; ctx.shadowColor = "#FFF"; ctx.shadowBlur = 20; 
-            ctx.fillText("Chúc mừng sinh nhật", 800, 200); ctx.font = '140px "Great Vibes", cursive'; ctx.fillText("Diệp Hà", 800, 330);
+            ctx.font = '130px "Great Vibes", cursive'; ctx.fillStyle = '#FF69B4'; ctx.textAlign = 'center'; ctx.shadowColor = "#FFF"; ctx.shadowBlur = 20; 
+            ctx.fillText("Chúc mừng sinh nhật", 800, 150); ctx.font = '140px "Great Vibes", cursive'; ctx.fillText("Diệp Hà", 800, 330);
             const tex = new THREE.CanvasTexture(canvas);
             const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, blending: THREE.AdditiveBlending });
             titleMesh = new THREE.Mesh(new THREE.PlaneGeometry(80, 30), mat); titleMesh.position.set(0, 40, 0); scene.add(titleMesh);
