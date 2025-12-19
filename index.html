@@ -188,7 +188,7 @@
         }
 
         function animate() {
-            requestAnimationFrame(animate); const time = Date.now() * 0.001; const speed = 0.08; const handRotY = (handX - 0.5) * 7.0; 
+            requestAnimationFrame(animate); const time = Date.now() * 0.001; const speed = 0.08; const handRotY = (handX - 0.5) * 10.0; 
             updateParticleGroup(groupMain, 'main', state, speed, handRotY, time); updateParticleGroup(groupDecor, 'decor', state, speed, handRotY, time);
             updateParticleGroup(groupGift, 'gift', state, speed, handRotY, time); updateParticleGroup(groupCandle, 'candle', state, speed, handRotY, time);
             photoMeshes.forEach((mesh, i) => { if(!mesh.material.map && photoTextures[i]) { mesh.material.map = photoTextures[i]; mesh.material.needsUpdate = true; } });
@@ -246,4 +246,5 @@
         window.addEventListener('resize', () => { if(camera) { camera.aspect = window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); } });
     </script>
 </body>
+
 </html>
