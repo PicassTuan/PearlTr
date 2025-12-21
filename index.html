@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HPBD Diep Ha</title>
+    <title>Happy Birthday Diệp Hà</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Dancing+Script:wght@400;700&family=Segoe+UI:wght@400;700&display=swap" rel="stylesheet">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
@@ -15,37 +15,207 @@
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
 
     <style>
+        /* --- CẤU HÌNH GIAO DIỆN CHUNG --- */
         body { margin: 0; overflow: hidden; background-color: #000000; font-family: 'Segoe UI', sans-serif; }
         #canvas-container { width: 100%; height: 100vh; display: block; }
-        #ui-layer { position: absolute; bottom: 30px; width: 100%; text-align: center; pointer-events: none; z-index: 100; }
+        
+        /* --- PHẦN HIỂN THỊ NGÀY (MỚI THÊM) --- */
+        #date-container {
+            position: absolute;
+            top: 5%; /* Cách mép trên 5% */
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 200; /* Nằm trên tất cả */
+            width: 100%;
+        }
+
+        #days-count {
+            font-family: 'Great Vibes', cursive;
+            font-size: 50px;
+            color: #FF1493; /* Màu hồng đậm */
+            text-shadow: 0 0 10px #FF69B4;
+            margin-bottom: 5px;
+            line-height: 1;
+        }
+
+        #date-range {
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.8);
+            letter-spacing: 2px;
+            text-shadow: 0 2px 4px black;
+            font-weight: bold;
+        }
+
+        /* --- PHẦN UI CHÍNH --- */
+        #ui-layer { 
+            position: absolute; top: 55%; /* Đẩy xuống một chút để không đè vào ngày */
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            width: 90%; max-width: 800px; 
+            text-align: center; pointer-events: none; z-index: 100; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; height: auto;
+        }
+
         .badge { display: inline-block; background: rgba(0,0,0,0.7); border: 2px solid #FF69B4; color: #FF69B4; padding: 10px 25px; border-radius: 50px; font-size: 18px; font-weight: bold; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 0 20px rgba(255, 105, 180, 0.5); text-shadow: 0 0 10px #FF69B4; transition: all 0.3s ease; }
+        
+        /* --- CẤU HÌNH GIAO DIỆN LÁ THƯ --- */
+        #letter-content {
+            font-size: 30px;             
+            color: #FFB6C1;              
+            font-family: 'Dancing Script', cursive; 
+            line-height: 1.5;            
+            text-shadow: 0 2px 4px black;
+            background: rgba(0,0,0,0.6);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            width: 100%;
+            min-height: 150px;
+            box-shadow: 0 0 15px rgba(255, 105, 180, 0.3);
+            border: 1px solid rgba(255, 105, 180, 0.3);
+            text-align: left;
+            white-space: pre-wrap; 
+        }
+
         .guide { color: rgba(255, 255, 255, 0.8); font-size: 14px; margin-bottom: 20px; text-shadow: 0 2px 4px black; background: rgba(0,0,0,0.4); display: inline-block; padding: 5px 15px; border-radius: 10px; }
-        button { pointer-events: auto; cursor: pointer; background: linear-gradient(to bottom, #FF1493, #C71585); color: #FFF; border: 2px solid #FFC0CB; padding: 15px 50px; border-radius: 30px; font-weight: 800; font-size: 16px; box-shadow: 0 0 30px rgba(255, 20, 147, 0.6); animation: pulse 1.5s infinite; }
+        
+        button { pointer-events: auto; cursor: pointer; background: linear-gradient(to bottom, #FF1493, #C71585); color: #FFF; border: 2px solid #FFC0CB; padding: 15px 50px; border-radius: 30px; font-weight: 800; font-size: 16px; box-shadow: 0 0 30px rgba(255, 20, 147, 0.6); animation: pulse 1.5s infinite; transition: opacity 0.5s; opacity: 0; }
+        button.visible { opacity: 1; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        
         #camera-preview { position: absolute; top: 15px; right: 15px; width: 160px; height: 120px; border: 2px solid rgba(255, 105, 180, 0.5); transform: scaleX(-1); opacity: 0.8; border-radius: 8px; background: #000; }
         #copyright { position: absolute; bottom: 10px; right: 15px; color: rgba(255, 255, 255, 0.3); font-size: 12px; z-index: 100; font-style: italic; }
+        
+        .ui-minimized { bottom: 30px !important; top: auto !important; transform: translate(-50%, 0) !important; height: auto !important; justify-content: flex-end !important; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
+    <div id="date-container">
+        <div id="days-count">Loading...</div>
+        <div id="date-range">Loading...</div>
+    </div>
+
     <div id="ui-layer">
         <div id="status" class="badge">🎂 Trần Thị Diệp Hà 🎂</div>
-        <br>
-        <div class="guide">🖐 <b>Xòe:</b> Pháo hoa &nbsp;|&nbsp; ❤️ <b>Tim:</b> Yêu thương &nbsp;|&nbsp; ✊ <b>Nắm:</b> Bánh Kem &nbsp;|&nbsp; 👌 <b>Chạm:</b> Xem Ảnh</div>
-        <br>
-        <button id="btnStart" onclick="startSystem()">Dành Cho Em!</button>
+        
+        <div id="letter-content"></div>
+
+        <div id="controls-area" class="hidden">
+            <div class="guide">🖐 <b>Xòe:</b> Pháo hoa &nbsp;|&nbsp; ❤️ <b>Tim:</b> Yêu thương &nbsp;|&nbsp; ✊ <b>Nắm:</b> Bánh Kem &nbsp;|&nbsp; 👌 <b>Chạm:</b> Xem Ảnh</div>
+            <br>
+            <button id="btnStart" onclick="startSystem()">Dành Cho Em!</button>
+        </div>
     </div>
-    <div id="copyright">© Gift for Diep Ha</div>
+
+    <div id="copyright">© Gift for Diep Ha - P.M.T</div>
     <div id="canvas-container"></div>
     <video class="input_video" style="display:none"></video>
     <canvas id="camera-preview" width="320" height="240"></canvas>
 
     <script>
-        const MUSIC_URL = "./audio.mp3";
+        // ==========================================================
+        // 1. TÍNH TOÁN NGÀY THÁNG
+        // ==========================================================
+        function calculateDate() {
+            const startYear = 2009;
+            const currentYear = new Date().getFullYear(); // Lấy năm hiện tại
+            
+            const startDate = new Date(`${startYear}-12-22`);
+            const endDate = new Date(`${currentYear}-12-22`);
+
+            // Tính khoảng cách thời gian (mili giây)
+            const diffTime = Math.abs(endDate - startDate);
+            // Chuyển đổi sang ngày (chia cho mili giây trong 1 ngày)
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+
+            // Cập nhật giao diện
+            document.getElementById('days-count').innerText = `${diffDays} days`;
+            document.getElementById('date-range').innerText = `22/12/${startYear} - 22/12/${currentYear}`;
+        }
+
+        // ==========================================================
+        // KHU VỰC CHỈNH SỬA CẤU HÌNH LÁ THƯ
+        // ==========================================================
+        
+        const TYPING_SPEED = 40;    
+        const SLOW_SPEED = 90;     
+
+        const CACH_MO_DAU = 12;      
+        const CACH_NOI_DUNG = 5;   
+        const CACH_KET_THUC = 77;   
+        const CACH_KET_THUC2 = 80;
+
+        // Đã rút ngắn các câu chúc theo yêu cầu
+        const wishes = [
+            "Chúc mừng sinh nhật công chúa! Chúc em tuổi mới rạng rỡ, đạt được mọi ước mơ và luôn hạnh phúc bên anh.",
+            "Gửi cô gái bé nhỏ! Mong nụ cười luôn nở trên môi em. Cảm ơn em đã mang ánh sáng đến cuộc đời anh.",
+            "Chúc mừng sinh nhật người anh yêu! Tuổi mới chúc em luôn tự tin, mạnh mẽ và gặt hái nhiều thành công.",
+            "Nhân sinh nhật em, anh gửi ngàn lời yêu thương. Chúc em tuổi mới vui vẻ và đôi ta mãi gắn kết bền chặt.",
+            "Chúc mừng sinh nhật em yêu! Hy vọng tuổi mới mang đến nhiều bất ngờ và cơ hội tuyệt vời cho em.",
+            "Chúc em tuổi mới luôn khỏe mạnh, bình an. Cảm ơn em vì sự bao dung và tình cảm chân thành dành cho anh.",
+            "Em là món quà quý giá nhất. Chúc em tuổi mới tràn đầy năng lượng và xinh đẹp như những đóa hoa.",
+            "Chúc mừng sinh nhật! Mong tình yêu chúng mình mãi bền lâu và ấm áp như những ngày đầu tiên.",
+            "Gửi em những điều tốt đẹp nhất. Chúc em luôn rạng ngời, cuộc sống ngập tràn tiếng cười và hạnh phúc.",
+            "Chúc mừng sinh nhật! Mong em luôn giữ được nụ cười và niềm hạnh phúc ngọt ngào mà em đang có."
+        ];
+
+        const sp1 = " ".repeat(CACH_MO_DAU);
+        const sp2 = " ".repeat(CACH_NOI_DUNG);
+        const sp3 = " ".repeat(CACH_KET_THUC);
+        const sp4 = " ".repeat(CACH_KET_THUC2);
+
+        const randomWish = wishes[Math.floor(Math.random() * wishes.length)];
+        const ENDING_TEXT = "Anh yêu em!";
+        
+        const fullMessage = `${sp1}Gửi Diệp Hà, yêu của anh\n${sp2}${randomWish}\n${sp3}${ENDING_TEXT}\n${sp4}P.M.T`;
+        
+        const slowStartIndex = fullMessage.indexOf(ENDING_TEXT);
+
+        let charIndex = 0;
+        const letterElement = document.getElementById('letter-content');
+        const controlsArea = document.getElementById('controls-area');
+        const btnStart = document.getElementById('btnStart');
+
+        function typeWriter() {
+            if (charIndex < fullMessage.length) {
+                const char = fullMessage.charAt(charIndex);
+                letterElement.innerHTML += (char === '\n') ? '<br>' : char;
+                charIndex++;
+                
+                let currentDelay = TYPING_SPEED;
+                if (slowStartIndex !== -1 && charIndex >= slowStartIndex) {
+                    currentDelay = SLOW_SPEED;
+                }
+                if (char === ' ') {
+                    currentDelay = 0;
+                }
+
+                setTimeout(typeWriter, currentDelay);
+            } else {
+                controlsArea.classList.remove('hidden');
+                setTimeout(() => { btnStart.classList.add('visible'); }, 100);
+            }
+        }
+
+        window.onload = function() {
+            calculateDate(); // Tính ngày ngay khi tải trang
+            typeWriter(); 
+        };
+
+        // ==========================================================
+        // KHU VỰC 3D VÀ LOGIC HỆ THỐNG (GIỮ NGUYÊN)
+        // ==========================================================
+        
+        const MUSIC_URL = "./audio.mp3"; 
+        const photoFiles = ['./image1.jpeg', './image2.jpeg', './image3.jpeg', './image4.jpeg', './image5.jpeg', './image6.jpeg'];
+
         let bgMusic = new Audio(MUSIC_URL);
         bgMusic.loop = true; bgMusic.volume = 1.0;
 
         const loader = new THREE.TextureLoader();
-        const photoFiles = ['./image1.jpeg', './image2.jpeg', './image3.jpeg', './image4.jpeg', './image5.jpeg', './image6.jpeg'];
         const photoTextures = [];
         photoFiles.forEach((f, i) => photoTextures[i] = loader.load(f));
 
@@ -54,6 +224,7 @@
             canvas.width = 128; canvas.height = 128;
             const ctx = canvas.getContext('2d');
             const cx = 64, cy = 64;
+            
             if (type === 'pink_glow') { 
                 const grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, 40);
                 grd.addColorStop(0, '#FFFFFF'); grd.addColorStop(0.2, '#FFC0CB'); grd.addColorStop(0.5, '#FF69B4'); grd.addColorStop(1, 'rgba(0,0,0,0)');
@@ -220,7 +391,14 @@
         }
 
         function startSystem() {
-            document.getElementById('btnStart').style.display = 'none'; bgMusic.play().catch(e => console.log(e)); init3D();
+            document.getElementById('letter-content').style.display = 'none';
+            // Khi nhấn nút, ẩn luôn cả phần ngày tháng cho màn hình rộng chỗ
+            document.getElementById('date-container').style.display = 'none';
+            document.getElementById('ui-layer').classList.add('ui-minimized');
+            
+            document.getElementById('btnStart').style.display = 'none'; 
+            bgMusic.play().catch(e => console.log(e)); init3D();
+            
             const video = document.getElementsByClassName('input_video')[0]; const canvas = document.getElementById('camera-preview'); const ctx = canvas.getContext('2d'); const statusDiv = document.getElementById('status');
             let frameCnt = 0; const hands = new Hands({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`});
             hands.setOptions({ maxNumHands: 2, modelComplexity: 1, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
@@ -246,7 +424,4 @@
         window.addEventListener('resize', () => { if(camera) { camera.aspect = window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); } });
     </script>
 </body>
-
 </html>
-
-
